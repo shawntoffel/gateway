@@ -1,0 +1,9 @@
+Port = 10000
+
+[[Destinations]]
+Host = "http://localhost:10001"
+Endpoint = "/someendpoint"
+
+[[Destinations]]
+Host = "http://localhost:10002"
+Endpoint = "/some/other/endpoint"
