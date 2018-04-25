@@ -1,9 +1,5 @@
-Port = 10000
-
-[[Destinations]]
-Host = "http://localhost:10001"
-Endpoint = "/someendpoint"
-
-[[Destinations]]
-Host = "http://localhost:10002"
-Endpoint = "/some/other/endpoint"
+Port = "10000"
+Destinations = [
+    "http://localhost:10001/someendpoint",
+    "http://localhost:10002/some/other/endpoint",
+]
