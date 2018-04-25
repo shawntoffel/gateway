@@ -1,54 +1,64 @@
-package main
+package gateway
 
 import (
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-
-	"github.com/go-kit/kit/log"
-	configreader "github.com/shawntoffel/services-core/config"
-	"github.com/shawntoffel/services-core/runner"
 )
 
-type Config struct {
-	Port         int
-	Destinations []Service
-}
-
-type Service struct {
-	Host     string
-	Endpoint string
-}
-
 type Gateway interface {
-	Start() error
+	Handle(destination string) error
+	Start(port string) error
 }
 
 type gateway struct {
-	logger log.Logger
-	config Config
+	ErrorLog *log.Logger
+	mux      *http.ServeMux
 }
 
-func NewGateway(logger log.Logger, config Config) Gateway {
-	return &gateway{logger, config}
+func NewGateway() Gateway {
+	return NewGatewayWithErrorLog(&log.Logger{})
 }
 
-func (g *gateway) Start() error {
-	mux := http.NewServeMux()
+func NewGatewayWithErrorLog(errorLog *log.Logger) Gateway {
+	return &gateway{
+		mux:      http.NewServeMux(),
+		ErrorLog: errorLog,
+	}
+}
 
-	for _, service := range g.config.Destinations {
-		url, err := url.Parse(service.Host)
+func (g *gateway) Handle(destination string) error {
+	destinationUrl, err := url.Parse(destination)
 
-		if err != nil {
-			return err
-		}
-
-		g.logger.Log("destination", url, "endpoint", service.Endpoint)
-
-		mux.Handle(service.Endpoint, httputil.NewSingleHostReverseProxy(url))
+	if err != nil {
+		return err
 	}
 
-	runner.StartService(mux, g.logger, configreader.ServiceConfig{Port: g.config.Port})
+	g.mux.Handle(destinationUrl.Path, g.proxy(destinationUrl))
 
 	return nil
+}
+
+func (g *gateway) Start(port string) error {
+	server := http.Server{
+		Addr:     ":" + port,
+		ErrorLog: g.ErrorLog,
+	}
+
+	http.Handle("/", g.mux)
+
+	return server.ListenAndServe()
+}
+
+func (g *gateway) proxy(destinationUrl *url.URL) *httputil.ReverseProxy {
+	destinationHost := &url.URL{
+		Scheme: destinationUrl.Scheme,
+		Host:   destinationUrl.Host,
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(destinationHost)
+	proxy.ErrorLog = g.ErrorLog
+
+	return proxy
 }
