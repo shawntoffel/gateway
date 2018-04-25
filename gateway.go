@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -10,7 +11,7 @@ import (
 // Gateway is a simple API gateway
 type Gateway interface {
 	Handle(destination string) error
-	Start(port string) error
+	Start(port int) error
 }
 
 type gateway struct {
@@ -45,9 +46,9 @@ func (g *gateway) Handle(destination string) error {
 }
 
 //Start starts the reverse proxy
-func (g *gateway) Start(port string) error {
+func (g *gateway) Start(port int) error {
 	server := http.Server{
-		Addr:     ":" + port,
+		Addr:     fmt.Sprintf(":%d", port),
 		ErrorLog: g.ErrorLog,
 	}
 

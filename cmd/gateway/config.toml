@@ -1,4 +1,4 @@
-Port = "10000"
+Port = 10000
 Destinations = [
     "http://localhost:10001/someendpoint",
     "http://localhost:10002/some/other/endpoint",

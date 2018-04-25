@@ -7,7 +7,7 @@ import (
 )
 
 type config struct {
-	Port         string
+	Port         int
 	Destinations []string
 }
 
@@ -29,8 +29,12 @@ func main() {
 	g := gateway.NewGateway()
 
 	for _, destination := range c.Destinations {
-		g.Handle(destination)
+		err := g.Handle(destination)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	g.Start(c.Port)
+	panic(g.Start(c.Port))
 }
