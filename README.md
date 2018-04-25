@@ -1,6 +1,7 @@
 # gateway
 Simple API gateway using a reverse proxy
 
+```go
     g := gateway.NewGateway()
     
     err := g.Handle("http://localhost:3000/some/endpoint")
@@ -15,3 +16,4 @@ Simple API gateway using a reverse proxy
     if err != nil {
         return err
     }
+```
