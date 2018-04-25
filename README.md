@@ -1,4 +1,6 @@
 # gateway
+[![GoDoc](https://godoc.org/github.com/shawntoffel/gateway?status.svg)](https://godoc.org/github.com/shawntoffel/gateway) [![Go Report Card](https://goreportcard.com/badge/github.com/shawntoffel/gateway)](https://goreportcard.com/report/github.com/shawntoffel/gateway) [![Build Status](https://travis-ci.org/shawntoffel/gateway.svg?branch=master)](https://travis-ci.org/shawntoffel/gateway)
+
 Simple API gateway using a reverse proxy
 
 ```go
