@@ -2,15 +2,23 @@
 Simple API gateway using a reverse proxy
 
 ```go
-g := gateway.NewGateway()
-    
-err := g.Handle("http://localhost:3000/some/endpoint")
-
-if err != nil {
-    return err
+destinations := []string{
+    "http://localhost:3000/some/endpoint",
+    "http://localhost:3001/some/other/endpoint",
 }
 
-// requests to http://localhost:8080/some/endpoint will be proxied to http://localhost:3000/some/endpoint
+g := gateway.NewGateway()
+    
+for _, destination := range destinations {
+    // register an endpoint
+    err := g.Handle(destination)
+
+    if err != nil {
+        return err
+    }
+}
+
+// requests to port 8080 will be proxied to the appropriate destination by url path
 err = g.Start(8080)
 
 if err != nil {
