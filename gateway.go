@@ -7,6 +7,7 @@ import (
 	"net/url"
 )
 
+// Gateway is a simple API gateway
 type Gateway interface {
 	Handle(destination string) error
 	Start(port string) error
@@ -17,10 +18,12 @@ type gateway struct {
 	mux      *http.ServeMux
 }
 
+// NewGateway creates a new default Gateway
 func NewGateway() Gateway {
 	return NewGatewayWithErrorLog(&log.Logger{})
 }
 
+// NewGatewayWithErrorLog creates a new default Gateway with a custom ErrorLog
 func NewGatewayWithErrorLog(errorLog *log.Logger) Gateway {
 	return &gateway{
 		mux:      http.NewServeMux(),
@@ -28,6 +31,7 @@ func NewGatewayWithErrorLog(errorLog *log.Logger) Gateway {
 	}
 }
 
+//Handle Adds a handler for proxying requests to the provided destination
 func (g *gateway) Handle(destination string) error {
 	destinationUrl, err := url.Parse(destination)
 
@@ -40,6 +44,7 @@ func (g *gateway) Handle(destination string) error {
 	return nil
 }
 
+//Start starts the reverse proxy
 func (g *gateway) Start(port string) error {
 	server := http.Server{
 		Addr:     ":" + port,

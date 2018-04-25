@@ -6,7 +6,7 @@ import (
 	"github.com/shawntoffel/services-core/command"
 )
 
-type Config struct {
+type config struct {
 	Port         string
 	Destinations []string
 }
@@ -18,9 +18,9 @@ func init() {
 }
 
 func main() {
-	config := Config{}
+	c := config{}
 
-	_, err := toml.DecodeFile(args.ConfigFile, &config)
+	_, err := toml.DecodeFile(args.ConfigFile, &c)
 
 	if err != nil {
 		panic(err)
@@ -28,9 +28,9 @@ func main() {
 
 	g := gateway.NewGateway()
 
-	for _, destination := range config.Destinations {
+	for _, destination := range c.Destinations {
 		g.Handle(destination)
 	}
 
-	g.Start(config.Port)
+	g.Start(c.Port)
 }
