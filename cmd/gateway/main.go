@@ -1,34 +1,51 @@
 package main
 
 import (
-	"github.com/BurntSushi/toml"
+	"flag"
+	"strings"
+
 	"github.com/shawntoffel/gateway"
-	"github.com/shawntoffel/services-core/command"
 )
 
 type config struct {
 	Port         int
-	Destinations []string
+	Destinations *destinations
 }
 
-var args command.CommandArgs
+type destinations struct {
+	Urls []string
+}
+
+func (d *destinations) Set(value string) error {
+	split := strings.Split(value, ",")
+	for _, url := range split {
+		d.Urls = append(d.Urls, url)
+	}
+
+	return nil
+}
+
+func (d *destinations) String() string {
+	return strings.Join(d.Urls, ",")
+}
+
+var args config
 
 func init() {
-	args = command.ParseArgs()
+	flag.IntVar(&args.Port, "p", 8080, "Port that the gateway will listen on.")
+
+	d := destinations{}
+
+	flag.Var(&d, "d", "Comma delimited list of destination urls.")
+	args.Destinations = &d
+
+	flag.Parse()
 }
 
 func main() {
-	c := config{}
-
-	_, err := toml.DecodeFile(args.ConfigFile, &c)
-
-	if err != nil {
-		panic(err)
-	}
-
 	g := gateway.NewGateway()
 
-	for _, destination := range c.Destinations {
+	for _, destination := range args.Destinations.Urls {
 		err := g.Handle(destination)
 
 		if err != nil {
@@ -36,5 +53,5 @@ func main() {
 		}
 	}
 
-	panic(g.Start(c.Port))
+	panic(g.Start(args.Port))
 }
